@@ -70,8 +70,8 @@ cd /etc/apache2/sites-enabled
 sudo rm 000-default.conf
 
 # uncomment below when release
-# cd /var/www/cs207project/
-# python3 StorageManagerServer.py --update &
-# python3 RBTreeServer.py &
+cd /var/www/cs207project/
+python3 StorageManagerServer.py --update &
+python3 RBTreeServer.py &
 
 
