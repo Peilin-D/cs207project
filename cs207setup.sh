@@ -36,7 +36,7 @@ sudo pip3 install flask flask_sqlalchemy flask_bootstrap flask_wtf
 sudo apt-get install git
 
 cd /var/www/
-sudo git clone https://github.com/Peilin-D/cs207project.git
+sudo git clone https://github.com/rubix-cube/cs207project.git
 
 # install timeseries module and rbtree module
 cd cs207project/timeseries

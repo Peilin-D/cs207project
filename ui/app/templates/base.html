@@ -8,11 +8,14 @@
     <link href="/static/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/custom.css" rel="stylesheet">
     <link href="/static/css/sweetalert.css" rel="stylesheet">
+    <link href="/static/css/ball.css" rel="stylesheet">
     <script src="/static/js/jquery.js"></script>
     <script src="/static/js/flot.js"></script>
     <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
     <script src="/static/js/sweetalert.min.js"></script>
+    <script src="/static/js/d3.v3.min.js"></script>
+    <script src="/static/js/pace.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -36,6 +39,217 @@
     </div>
     <script>
       $(document).ready(function(){
+        $("#options").hide();
+        $(".plotting").hide();
+        var metadata = [];
+        var timeseries = [];
+        
+
+        var margin = {top: 35, right: 20, bottom: 35, left: 20};
+        var height = 400 - margin.top - margin.bottom, 
+            width = 700-margin.left - margin.right, barPadding=1;
+
+        var svg = d3.select("#metadata").append("svg")
+                      .attr("width", width + margin.left + margin.right)
+                      .attr("height", height + margin.top + margin.bottom)
+                      .append("g")
+                      .attr("transform", "translate(" + (margin.left+20) + "," + margin.top + ")");
+
+        $("input[type=radio]").on("change", function(){
+
+          // $("input[type=checkbox]:checked").each(function(i){
+          //   console.log(i, $(this).val());
+            
+          // update(metadata.map(function(d){return Math.abs(d[$("input[type=radio]:checked").val()]);}));    
+          update(metadata, $("input[type=radio]:checked").val());
+          // });
+        });
+
+
+
+        function update(dataset, type){
+          console.log(dataset);
+          var xscale = d3.scale.ordinal().domain(dataset.map(function(e){return e['id'];}))//d3.range(dataset.length))
+                    .rangeRoundBands([0, width], 0.05);
+
+          var yscale = d3.scale.linear()
+              .domain(d3.extent(dataset, function(d){return d[type];}))
+              .range([height,0]);
+          var yAxis = d3.svg.axis()
+          .scale(yscale)
+          .orient('left');
+          var xAxis = d3.svg.axis()
+          .scale(xscale)
+          .orient('bottom');
+
+          // Update bar chart
+          svg.selectAll("rect.m")
+              .data(dataset).transition().duration(300)
+              .attr("x", function(d, i){
+                return xscale(d['id']);
+              })
+              .attr("y", function(d){
+                return yscale(d[type]);
+              })
+              .attr("width", xscale.rangeBand())
+              .attr("height",function(d){
+                return height-yscale(d[type]);
+              })
+              .attr("fill", "teal");
+
+              // update text
+              var text = svg.selectAll("text.b")
+              .data(dataset).transition().duration(300)
+                .text(function(d){
+                return d[type].toFixed(2);
+              })
+              .attr("x", function(d, i) {
+                  return xscale(d['id']) + xscale.rangeBand()/2;
+             })
+             .attr("y", function(d) {
+                  return yscale(d[type]);
+             })
+             .attr("fill", "black")
+             .attr("font-size", "21px")
+             .attr("text-anchor", "middle")
+             .attr("class","b");
+
+             // update axis
+             svg.select(".x.axis").transition().duration(300).call(xAxis);
+             svg.select(".y.axis").transition().duration(300).call(yAxis);
+
+          // var xscale = d3.scale.ordinal().domain(d3.range(dataset.length))
+          //           .rangeRoundBands([0, width], 0.05);
+
+          // var yscale = d3.scale.linear()
+          //     .domain([0,d3.max(dataset, function(d){return d;})])
+          //     .range([height,0]);
+          // var yAxis = d3.svg.axis()
+          // .scale(yscale)
+          // .orient('left');
+          // var xAxis = d3.svg.axis()
+          // .scale(xscale)
+          // .orient('bottom');
+
+          // // Update bar chart
+          // svg.selectAll("rect.m")
+          //     .data(dataset).transition().duration(300)
+          //     .attr("x", function(d, i){
+          //       return xscale(i);
+          //     })
+          //     .attr("y", function(d){
+          //       return yscale(d);
+          //     })
+          //     .attr("width", xscale.rangeBand())
+          //     .attr("height",function(d){
+          //       return height-yscale(d);
+          //     })
+          //     .attr("fill", "teal");
+
+          //     // update text
+          //     var text = svg.selectAll("text.b")
+          //     .data(dataset).transition().duration(300)
+          //       .text(function(d){
+          //       return d.toFixed(2);
+          //     })
+          //     .attr("x", function(d, i) {
+          //         return xscale(i)+xscale.rangeBand()/2;
+          //    })
+          //    .attr("y", function(d) {
+          //         return yscale(d);
+          //    })
+          //    .attr("fill", "black")
+          //    .attr("font-size", "21px")
+          //    .attr("text-anchor", "middle")
+          //    .attr("class","b");
+
+          //    // update axis
+          //    svg.select(".x.axis").transition().duration(300).call(xAxis);
+          //    svg.select(".y.axis").transition().duration(300).call(yAxis);
+        }
+
+        function plotMetadata(dataset){
+          console.log("dataset",dataset);
+          var xscale = d3.scale.ordinal().domain(d3.range(dataset.length))
+                    .rangeRoundBands([0, width], 0.05);
+
+          var yscale = d3.scale.linear()
+              .domain([0,d3.max(dataset, function(d){return d;})])
+              .range([height,0]);
+
+          var yAxis = d3.svg.axis()
+          .scale(yscale)
+          .orient('left');
+
+          var xAxis = d3.svg.axis()
+          .scale(xscale)
+          .orient('bottom');
+
+          svg.selectAll("rect.m").remove();
+          var bars = svg.selectAll("rect.m")
+              .data(dataset);
+
+              bars.enter()
+              .append("rect")
+              .attr("x", function(d, i){
+                return xscale(i);
+              })
+              .attr("y", function(d){
+                return yscale(d);
+              })
+              .attr("width", xscale.rangeBand())
+              .attr("height",function(d){
+                return height-yscale(d);
+              })
+              .attr("fill", "teal")
+              .attr("class","m");
+
+              bars.transition().duration(300);
+              bars.exit().transition().duration(300).remove();
+              
+
+            svg.selectAll("text.b").remove();
+            var text = svg.selectAll("text.b")
+              .data(dataset);
+
+              text.enter()
+              .append("text")
+              .text(function(d){
+                return d.toFixed(2);
+              })
+              .attr("x", function(d, i) {
+                  return xscale(i)+xscale.rangeBand()/2;
+             })
+             .attr("y", function(d) {
+                  return yscale(d);
+             })
+             .attr("fill", "black")
+             .attr("font-size", "21px")
+             .attr("text-anchor", "middle")
+             .attr("class","b");
+            
+             
+            svg.selectAll(".y.axis").remove();
+            svg.selectAll(".x.axis").remove();
+             
+            var yAxisGroup = svg.append('g')
+              .attr('class', 'y axis')
+              .attr('transform', 'translate(0,0)')
+              .call(yAxis);
+             
+            var xAxisGroup = svg.append('g')
+              .attr('class', 'x axis')
+              .attr('transform', 'translate(0,' + (height+5) + ')')
+              .call(xAxis);
+             
+
+            svg.selectAll("text.title").remove();
+             svg.append("text")
+             .text("Metadata")
+             .attr("transform", "translate(-20,-20)")
+             .attr("class", "title");
+
+        }
 
         function clearResults(){
           $("#placeholder").empty();
@@ -81,7 +295,7 @@
           $(document).ajaxStop(function(){
             console.log("Finished ALL AJAX");
             var plots = [];
-            var meta_msg = ["<h3>Metadata</h3><ul>"];
+            var meta_msg = ["<h4>Metadata</h4><ul>"];
             for(i=0;i<timeseries.length;i++){
               var x = timeseries[i]['time'];
               var y = timeseries[i]['value'];
@@ -89,7 +303,7 @@
 
               plots.push({"label":"ID"+timeseries[i]['id'],"data":z});
             }
-            
+
             for(i=0;i<metadata.length;i++){
               meta_msg.push("<li>Blarg: " + metadata[i]['blarg'] + 
                             " ID: " + metadata[i]['id']+  
@@ -99,24 +313,49 @@
                             "</li>");
             }
 
+            $("#blarg").prop("checked", true);
+            plotMetadata(metadata.map(function(d){return Math.abs(d['blarg']);}));
+            
+
             meta_msg.push("</ul>")
             $("#results").html(meta_msg.join(""));
-            $.plot($("#placeholder"), plots,{legend: {"show": true}});
+            $.plot($("#placeholder"), plots,{
+                legend: {
+                "show": true
+                },
+                xaxis:{
+                  show: true
+                },
+                yaxis:{
+                  show: true
+                }
+              });
+
+            $("#options").show();
           });
         }
 
         $("#display-button").click(function(event){
           
           var ts_id = $("#ts-id").val();
-          var metadata = [];
-          var timeseries = [];
+          metadata = [];
+          timeseries = [];
           
+          $(".plotting").show();
           clearResults();
 
           if(!ts_id){
             // Use uploaded ts data 
+              
+              var file = $("#ts-file")[0];//.files[0];
+              if(file.files['length'] == 0){
+                sweetAlert("Error", "Please enter an Id or upload a file. XD", "error");
+                $(".plotting").hide();
+                clearResults();
+                return;
+              }
+              file = file.files[0];
               $("#results").html("Fetching data...");
-              var file = $("#ts-file")[0].files[0];
             
               var reader = new FileReader();
               reader.onload = function(e){
@@ -201,62 +440,42 @@
           reader.readAsText(file);
         });
 
-        // $("#sim-ts").click(function(event){
-
-        //   var ts_id = $("#ts-id").val();
+        
+        $("#search-metadata").on("click", function(){
+          var levels=[];
+          var left = "inf", right = "inf";
+          if($("#minRange").val() != ""){
+            left = $("#minRange").val();
+          } 
+          if($("#maxRange").val() != ""){
+            right = $("#maxRange").val();
+          } 
           
-        //   if(!ts_id){
-        //     // No id was provided, make POST request
-        //     var file = $("#ts-file")[0].files[0];
-        //     var reader = new FileReader();
-        //     reader.onload = function(e){
-        //       var ts = e.target.result;//JSON.parse(e.target.result);
-        //       $.ajax({
-        //         url: '/simquery',
-        //         type: 'POST',
-        //         data: ts,
-        //         success: function(response){
-        //           console.log("Similar timeseries:",response);
-        //           response = JSON.parse(response);
-        //           var newHTML = ['<h3>Here are the similar timeseries</h3><br><ul>'];
-        //           for (var i = 0; i < response.length; i++) {
-        //               newHTML.push('<li>Length=' + response[i][0]+' id='+response[i][1] + '</li>');
-        //           }
-        //           newHTML.push('</ul>')
-        //           $("#results").html(newHTML.join(""));
-        //         },
-        //         error: function(error){
-        //           console.log("Error POST timeseries!",error);
-        //         }
-        //       });
-        //     }
+          $("input[type=checkbox]:checked").each(function(){    
+            levels.push(this.value);
+          });
+          $.ajax({
+            url: '/timeseries',
+            type:'GET',
+            data: {
+                "mean_in": left+"-"+right,
+                "level_in": levels.join(",")
+              },
+              success: function(response){  
+                $("#textarea").val(response.map(function(e){
+                  return JSON.stringify(e);
+                }));
 
-        //     reader.readAsText(file);
-        //   }else{
-        //     // ID was provided
-        //     $.ajax({
-        //       url: '/simquery',
-        //       type: 'GET',
-        //       data: {"id":ts_id},
-        //       success: function(response){
-        //         console.log("GET timeseries!",response);
-        //         response = response['similar_points'];
-                
-        //         var newHTML = ['<h3>Here are the similar timeseries</h3><br><ul>'];
-        //         for (var i = 0; i < response.length; i++) {
-        //               newHTML.push('<li>Length=' + response[i][0]+' id='+response[i][1] + '</li>');
-        //         }
-        //         newHTML.push('</ul>');
-        //         $("#results").html(newHTML.join(""));
-        //       },
-        //       error: function(error){
-        //         console.log("Error GET timeseries!",error);
-        //       }
-        //     });
-        //   }
+              },
+              error: function(error){
+                $("#textarea").val(error);                
+              }
+          });
+        });
 
-          
-        // });
+        
+
+
 
       });
     </script>

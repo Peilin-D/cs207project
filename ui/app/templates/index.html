@@ -5,13 +5,8 @@
         <div class="col-md-6">
           <p>
         Welcome to our final project for CS207. On this page you will be able to add, query, and plot timeseries. Using the blue 'browse' button you can upload a timeseries JSON file of the format displayed to the right.
-        <b>n</b> is the number of similar timeseries points you want returned. After uploading the file, you can choose to display the timeseries and similar points or save it to the database server. By issuing a call to /timeseries/id 
-        you will be able to get metadata related to a timeseries of that id. You can also pass arguments to /timeseries like so: 
-        <pre>
-          /timeseries?mean_in=1.5-1.53&level_in=A,B,C 
-            or 
-          /timeseries?level=A
-        </pre>
+        <b>n</b> is the number of similar timeseries points you want returned. After uploading the file, you can choose to display the timeseries and similar points or save it to the database server. If you would like to access all the metadata, you can visit the url at <a href="/timeseries">timeseries.json</a>
+
         </p>
         </div>
         <div class="col-md-6">
@@ -40,7 +35,7 @@
   			</div>
   		</div>
       <div class="row top5">
-        <div class="col-md-5">
+        <div class="col-md-4">
           
             Upload JSON file  
             <label class="btn btn-primary btn-file">
@@ -48,36 +43,99 @@
               <input type="file" id="ts-file" style="display: none;">
             </label>
             <p id="file-name"></p>
+        </div>
+        <div class="col-md-4">
+          <p><button type="button" id="display-button" class="btn btn-success">Display Timeseries</button></p>
+        </div>
+
+        <div class="col-md-4">
+          <p><button type="button" id="save-ts" class="btn btn-info">Save to Database</button></p>
+        </div>
           
 
         </div>
       </div>
   		<div class="row top5">
-  			<div class="col-md-4">
-	  			<p><button type="button" id="display-button" class="btn btn-success">Display Timeseries</button></p>
-	  		</div>
-        <div class="col-md-4">
-          <p><button type="button" id="save-ts" class="btn btn-success">Save to Database</button></p>
-        </div>
+  			
         <!-- <div class="col-md-4">
           <p><button type="button" id="sim-ts" class="btn btn-success">Get similar TS</button></p>
         </div> -->
   		</div>
-      <div class="row top7">
+      <div class="row top10">
         <div class="col-md-10">
           <div>
-            <p id="results">
-
-            </p>
+            
           </div>
         </div>
       </div>
 
-  		<div class="row top7">
+  		<div class="row top10 plotting" >
+        <h2>Plotting</h2>
+        <p id="results"></p>
   			<div class="col-md-10">
   				<div id="placeholder" style="width:600px;height:300px"></div>
   			</div>
   		</div>
+      
+      <div class="row top30">
+        <h2>Search by metadata</h2>
+        <div class="col-md-6">
+          Min: <input type="text" id="minRange">
+          Max: <input type="text" id="maxRange">
+        </div>
+        <div class="col-md-2">
+          <div class="controls span2">
+            <label class="checkbox"><input type="checkbox" value="A">A</label>
+            <label class="checkbox"><input type="checkbox" value="B">B</label>
+            <label class="checkbox"><input type="checkbox" value="C">C</label>
+          </div>
+          <div class="controls span2">
+            <label class="checkbox"><input type="checkbox" value="D">D</label>
+            <label class="checkbox"><input type="checkbox" value="E">E</label>
+            <label class="checkbox"><input type="checkbox" value="F">F</label>
+          </div>
+        </div>
+        
+        <div class="col-md-2">
+          <span class="pull-right">
+            <button type="button" id="search-metadata" class="btn btn-success">Search</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="row top10">
+
+        <textarea class="form-control" id="textarea" rows="3"></textarea>
+      </div>
+
+      <div class="row top60 plotting">
+        <div class="col-md-10">
+          <div id="metadata"></div>
+        </div>
+
+        <div class="col-md-2">
+            <div id="options" class="options">
+              <div class="radio">
+                <label><input type="radio" name="optradio" id="blarg" value="blarg">Blarg</label>
+              </div>
+              <div class="radio">
+                <label><input type="radio" name="optradio" value="mean">Mean</label>
+              </div>
+              <div class="radio">
+                <label><input type="radio" name="optradio" value="std">Std</label>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="row top60">
+        <div class="col-md-12">
+          <h3> 
+            <a href="https://github.com/rubix-cube/cs207project">Find it on Github</a>
+          </h3>
+        </div>
+      </div>
+
   	</div>
   	
 {% endblock %}

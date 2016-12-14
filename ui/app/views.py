@@ -91,10 +91,21 @@ def timeseries():
 		level = request.args.get('level')
 		
 		# Filter by mean in 
-		if mean_in is not None:
+		if mean_in is not "":
 			mean_in = mean_in.split('-')
-			m_min, m_max = float(mean_in[0]),float(mean_in[1])
-			tmp = set(Timeseries.query.filter(and_(Timeseries.mean >= m_min, Timeseries.mean <= m_max)).all())
+			m_min, m_max = mean_in[0],mean_in[1]
+			if m_min == "inf" and m_max == "inf":
+				tmp = set(Timeseries.query.all())	
+			elif m_min == "inf" and m_max != "inf":
+				m_max = float(m_max)
+				tmp = set(Timeseries.query.filter(Timeseries.mean <= m_max).all())	
+			elif m_min != "inf" and m_max == "inf":
+				m_min = float(m_min)
+				tmp = set(Timeseries.query.filter(Timeseries.mean >= m_min).all())
+			else:
+				m_min, m_max = float(m_min), float(m_max)
+				tmp = set(Timeseries.query.filter(and_(Timeseries.mean >= m_min, Timeseries.mean <= m_max)).all())	
+			
 			results &= tmp
 		
 		# Filter by level in 
@@ -111,6 +122,8 @@ def timeseries():
 		# Serialize objects 
 
 		r = [e.serialize() for e in results]
+		print("R=",r)
+		print("Jsonify",jsonify(r))
 		return jsonify(r)
 	
 @app.route('/simquery', methods=['POST','GET'])
