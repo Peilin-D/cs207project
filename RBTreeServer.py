@@ -33,7 +33,8 @@ def clientThread(conn, ss):
 if __name__ == "__main__":
 	ss = similaritySearcher()
 	s = socket()
-	host = gethostname()
+	# host = gethostname()
+	host = gethostbyname("")
 	port = 12341
 	s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 	s.bind((host, port))

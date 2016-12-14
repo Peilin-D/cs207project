@@ -25,14 +25,16 @@ def randomTSMetadata(id, cur_ts):
 def connectRBTree():
 	port = 12341
 	s = socket.socket()
-	host = socket.gethostname()
+	# host = socket.gethostname()
+	host = socket.gethostbyname("")
 	s.connect((host, port))
 	return s
 
 def connectSM():
 	port = 12340 
 	s = socket.socket()
-	host = socket.gethostname()	
+	# host = socket.gethostname()	
+	host = socket.gethostbyname("")
 	s.connect((host, port))
 	return s
 
